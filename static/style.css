@@ -1,0 +1,345 @@
+/* Base Reset & Layout */
+* {
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    color: #e0e0e0;
+    overflow-y: auto;
+    height: 100%;
+  }
+  
+  /* Full-Screen Background Video */
+  #background-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+  }
+  
+  /* Overlay Container */
+  .overlay {
+    position: relative;
+    background: rgba(30, 30, 30, 0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+    margin: 40px auto;
+    padding: 25px;
+    max-width: 600px;
+    width: 90%;
+  }
+  
+  /* Headings */
+  h1, h2 {
+    text-align: center;
+    margin: 10px 0 20px;
+  }
+  
+  /* Gradient Background Classes */
+  .gradient-orange {
+    background: linear-gradient(135deg, rgba(255, 102, 0, 0.3), rgba(255, 165, 0, 0.3));
+  }
+  
+  .gradient-blue {
+    background: linear-gradient(135deg, rgba(0, 102, 204, 0.3), rgba(0, 255, 255, 0.3));
+  }
+  
+  .gradient-green {
+    background: linear-gradient(135deg, rgba(0, 204, 102, 0.3), rgba(102, 255, 204, 0.3));
+  }
+  
+  .gradient-glass {
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 25px;
+    font-size: 0.95em;
+    background-size: 400% 400%;
+    animation: gradientCycle 30s ease infinite;
+  }
+  
+  @keyframes gradientCycle {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  /* Form Container */
+  .form-container {
+    margin-top: 10px;
+  }
+  
+  .input-row {
+    margin-bottom: 18px;
+  }
+  
+  .input-row label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.95em;
+  }
+  
+  .tooltip {
+    font-size: 0.75em;
+    margin-left: 6px;
+    color: #bbb;
+    vertical-align: middle;
+    cursor: help;
+  }
+  
+  .tooltip:hover {
+    color: #fff;
+  }
+  
+  .input-with-delete {
+    display: flex;
+    align-items: center;
+  }
+  
+  .input-with-delete input[type="text"],
+  .input-with-delete input[type="number"] {
+    flex-grow: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    font-size: 0.95em;
+    background-color: #fff;
+    color: #000;
+  }
+  
+  .delete-btn {
+    background: transparent;
+    border: none;
+    margin-left: 10px;
+    font-size: 1.2em;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .delete-btn:hover {
+    color: #ff4444;
+  }
+  
+  .custom-field {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .custom-field label {
+    flex: 1 1 100%;
+    font-weight: bold;
+  }
+  
+  .custom-field input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    font-size: 0.95em;
+    background-color: #fff;
+    color: #000;
+  }
+  
+  button[type="submit"],
+  .custom-field button {
+    background-color: #6200ea;
+    color: #fff;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    width: 100%;
+  }
+  
+  button[type="submit"]:hover,
+  .custom-field button:hover {
+    background-color: #3700b3;
+  }
+  
+  #loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(18, 18, 18, 0.95);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+  
+  .spinner {
+    border: 8px solid rgba(30, 30, 30, 0.6);
+    border-top: 8px solid #6200ea;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .description {
+    margin-top: 25px;
+    font-size: 0.88em;
+    line-height: 1.5;
+    color: #ccc;
+  }
+  
+  .description code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 3px 5px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9em;
+    color: #fff;
+  }
+  
+  @media (max-width: 600px) {
+    .overlay {
+      margin: 20px;
+      padding: 20px;
+    }
+  
+    .custom-field {
+      flex-direction: column;
+    }
+  
+    .input-with-delete {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .delete-btn {
+      margin: 10px 0 0;
+      align-self: flex-end;
+    }
+  }
+  
+  /* Vice UI Style Table */
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  
+  .info-row:last-child {
+    border-bottom: none;
+  }
+  
+  .label {
+    font-weight: bold;
+    color: #ffc879;
+    flex: 1;
+    text-align: left;
+  }
+  
+  .value {
+    font-weight: bold;
+    color: #ffffff;
+    flex: 1;
+    text-align: right;
+  }
+  
+  .preformatted {
+    background: rgba(0,0,0,0.3);
+    padding: 0.75rem;
+    border-radius: 6px;
+    color: #ccc;
+    font-size: 0.85rem;
+    font-family: "Courier New", monospace;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  /* Info container stays glassy */
+.responsive-info {
+    margin: 1rem;
+    border-radius: 8px;
+    padding: 15px;
+    background: linear-gradient(135deg, rgba(0, 128, 255, 0.2), rgba(0, 255, 255, 0.15));
+    background-size: 400% 400%;
+    animation: gradientCycle 30s ease infinite;
+  }
+  
+  /* Row layout: side-by-side on wide, stacked on small screens */
+  .responsive-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 6px 0;
+    flex-wrap: wrap;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  
+  .responsive-row .label {
+    min-width: 120px;
+    font-weight: bold;
+    flex: 1 1 40%;
+  }
+  
+  .responsive-row .value {
+    flex: 1 1 55%;
+    text-align: right;
+    font-weight: bold;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+  
+  /* Full-width items (preformatted blocks) stack naturally */
+  .responsive-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 1rem;
+  }
+  
+  /* Responsive tuning */
+  @media (max-width: 600px) {
+    .responsive-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .responsive-row .value {
+      text-align: left;
+      width: 100%;
+    }
+  }
+
+  .header-logo-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  
+  .logo-icon {
+    height: 100px;
+    width: 100px;
+    object-fit: contain;
+  }

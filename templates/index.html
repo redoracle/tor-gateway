@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tor Gateway Control</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+  <video autoplay muted loop id="background-video">
+    <source src="/static/digital-network-traffic-concept.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
+
+  <div class="overlay" id="content">
+    <div class="header-logo-title">
+      <img src="/static/Logo.png" alt="Logo" class="logo-icon">
+      <h1>Tor Gateway Control</h1>
+    </div>
+
+    <!-- Exit Info -->
+    <details open>
+      <summary class="section-title" style="margin-bottom: 1rem; margin-top: 1rem;">Tor Exit Info</summary>
+      <div class="info" id="exitInfoDisplay" style="margin-left: 1rem; margin-right: 1rem;">
+        {% if exit_info and exit_info.status == "success" %}
+          <div class="info-row"><span class="label">IP:</span><span class="value">{{ exit_info.query }}</span></div>
+          <div class="info-row"><span class="label">Country:</span><span class="value">{{ exit_info.country }} ({{ exit_info.countryCode }})</span></div>
+          <div class="info-row"><span class="label">Region:</span><span class="value">{{ exit_info.regionName }}</span></div>
+          <div class="info-row"><span class="label">City:</span><span class="value">{{ exit_info.city }}</span></div>
+          <div class="info-row"><span class="label">ISP:</span><span class="value">{{ exit_info.isp }}</span></div>
+        {% else %}
+          <p class="dimmed">Unable to fetch exit information.</p>
+        {% endif %}
+      </div>
+    </details>
+
+    <!-- System Info -->
+    <details>
+        <summary class="section-title" style="margin-bottom: 1rem; margin-top: 1rem;">System & Network Info</summary>
+        <div class="info responsive-info" id="systemInfoBox">
+          
+          <div class="info-row responsive-row">
+            <span class="label">Public IP:</span>
+            <span class="value" id="publicIP">Loading...</span>
+          </div>
+          
+          <div class="info-row responsive-row">
+            <span class="label">Hostname:</span>
+            <span class="value" id="hostname">Loading...</span>
+          </div>
+      
+          <div class="info-row responsive-row">
+            <span class="label">Local IP:</span>
+            <span class="value" id="localIP">Loading...</span>
+          </div>
+      
+          <div class="info-row responsive-column">
+            <span class="label">Interfaces:</span>
+            <pre class="preformatted" id="interfaces">Loading...</pre>
+          </div>
+      
+          <div class="info-row responsive-column">
+            <span class="label">Open Ports:</span>
+            <pre class="preformatted" id="openPorts">Loading...</pre>
+          </div>
+      
+        </div>
+    </details>
+
+    <!-- Tor DNS & Circuits -->
+    <details>
+      <summary class="section-title" style="margin-bottom: 1rem; margin-top: 1rem;">Tor DNS & Circuit Details</summary>
+      <div class="info terminal-box responsive-info" id="torInfoBox" style="margin-left: 1rem; margin-right: 1rem;">
+        <div style="margin-bottom: 0.5rem;"><strong>Bootstrap:</strong> <span id="bootstrapStatus">Loading...</span></div>
+        <div style="margin-top: 0.5rem;"><strong>DNS Servers:</strong><pre id="dnsServers" class="preformatted">Loading...</pre></div>
+        <div><strong>Tor Circuits:</strong><pre id="torCircuits" class="preformatted">Loading...</pre></div>
+      </div>
+    </details>
+
+    <!-- Config Editor -->
+    <details open>
+      <summary class="section-title" style="margin-bottom: 1rem; margin-top: 1rem;">Update Configuration</summary>
+      <div class="form-container responsive-info">
+        <form id="configForm" onsubmit="submitForm(event)">
+          <div id="configFields">
+            {% for key, value in config.items() %}
+              {% set plainKey = key.startswith("TOR_") and key[4:] or key %}
+              <div class="input-row">
+                <label for="config_{{ key }}">
+                  {{ key }}
+                  {% if plainKey in allowed_keys %}
+                    <span class="tooltip" title="{{ allowed_keys[plainKey] }}">ℹ️</span>
+                  {% endif %}
+                </label>
+                <div class="input-with-delete">
+                  <input type="text" id="config_{{ key }}" name="{{ key }}" value="{{ value }}" required />
+                  <button type="button" class="delete-btn" onclick="deleteField(this)">🗑️</button>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <hr style="margin: 20px 0; opacity: 0.3;" />
+
+          <div class="custom-field">
+            <label for="newKey">New Variable:</label>
+            <input type="text" id="newKey" placeholder="KEY" />
+            <input type="text" id="newValue" placeholder="Value" />
+            <button type="button" onclick="addCustomField()">Add Field</button>
+          </div>
+
+          <button type="submit">Update & Restart</button>
+        </form>
+
+        <div class="description">
+          <p><strong>Default Mode:</strong> <em>Random Tor Path</em></p>
+          <p><code>TOR_ExitNodes="{de},{nl},{fr},{se},{ch},{cz},{us},{ca},{gb},{no},{fi},{at},{pl}"</code></p>
+          <p>To force a region (e.g. Italy), use <code>{it}</code> and set <code>TOR_StrictNodes="1"</code>.</p>
+          <p><code>TOR_MaxCircuitDirtiness</code> defines how long a circuit lives (e.g. <code>36000</code> seconds).</p>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div id="loader" style="display: none;">
+    <div class="spinner"></div>
+    <p>Reloading configuration...</p>
+  </div>
+
+  <!-- JavaScript Logic -->
+  <script>
+    function deleteField(btn) {
+      btn.closest('.input-row').remove();
+    }
+
+    function addCustomField() {
+      const key = document.getElementById('newKey').value.trim();
+      const value = document.getElementById('newValue').value.trim();
+      if (!key) return alert('Please provide a variable name.');
+
+      const row = document.createElement('div');
+      row.classList.add('input-row');
+
+      const label = document.createElement('label');
+      label.setAttribute('for', `config_${key}`);
+      label.innerHTML = `${key}:`;
+
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('input-with-delete');
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.name = key;
+      input.id = `config_${key}`;
+      input.value = value;
+      input.required = true;
+
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'delete-btn';
+      delBtn.textContent = '🗑️';
+      delBtn.onclick = () => deleteField(delBtn);
+
+      wrapper.appendChild(input);
+      wrapper.appendChild(delBtn);
+      row.appendChild(label);
+      row.appendChild(wrapper);
+
+      document.getElementById('configFields').appendChild(row);
+      document.getElementById('newKey').value = '';
+      document.getElementById('newValue').value = '';
+    }
+
+    function submitForm(event) {
+      event.preventDefault();
+      if (!confirm('Are you sure you want to update the configuration and restart the container?')) return;
+
+      document.getElementById('content').style.display = 'none';
+      document.getElementById('loader').style.display = 'flex';
+
+      const form = document.getElementById('configForm');
+      const data = {};
+      new FormData(form).forEach((val, key) => data[key] = val);
+
+      fetch('/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+        .then(res => res.json())
+        .then(() => pollServer())
+        .catch(err => {
+          console.error('Update failed:', err);
+          location.reload();
+        });
+    }
+
+    function pollServer() {
+      setTimeout(() => {
+        fetch('/status')
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === 'ready') location.reload();
+            else {
+              console.log('Waiting:', data.info);
+              pollServer();
+            }
+          })
+          .catch(() => pollServer());
+      }, 3000);
+    }
+
+    // Auto fetch system and tor info
+    window.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const sysRes = await fetch("/system_info");
+        const sys = await sysRes.json();
+        document.getElementById("publicIP").textContent = sys.public_ip || "Unavailable";
+        document.getElementById("hostname").textContent = sys.container_ips.hostname || "—";
+        document.getElementById("localIP").textContent = sys.container_ips.local_ip || "—";
+        document.getElementById("interfaces").textContent = sys.container_ips.interfaces || "—";
+        document.getElementById("openPorts").textContent = sys.open_ports || "—";
+      } catch (err) {
+        document.getElementById("systemInfoBox").innerText = "Failed to load system info.";
+      }
+
+      try {
+        const torRes = await fetch("/tor_info");
+        const tor = await torRes.json();
+        document.getElementById("bootstrapStatus").textContent = tor.bootstrap_status || "—";
+        document.getElementById("dnsServers").textContent = tor.dns_servers || "—";
+        document.getElementById("torCircuits").textContent = tor.tor_circuits || "—";
+      } catch (err) {
+        document.getElementById("torInfoBox").innerText = "Failed to load Tor info.";
+      }
+    });
+  </script>
+</body>
+</html>

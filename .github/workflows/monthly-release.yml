@@ -1,0 +1,63 @@
+name: Monthly Docker Build & Release
+
+on:
+  # Run on the first day of every month at midnight UTC
+  schedule:
+    - cron: '0 0 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write 
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set Version (current date)
+        id: set_version
+        run: echo "version=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+
+      - name: Build Docker Image
+        run: |
+          # Build image with two tags: latest and version tag
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/tor-gateway:latest -t ${{ secrets.DOCKERHUB_USERNAME }}/tor-gateway:${{ steps.set_version.outputs.version }} .
+          # Tag for GitHub Container Registry (GHCR)
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/tor-gateway:latest ghcr.io/${{ secrets.GHCR_USERNAME }}/tor-gateway:latest
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/tor-gateway:${{ steps.set_version.outputs.version }} ghcr.io/${{ secrets.GHCR_USERNAME }}/tor-gateway:${{ steps.set_version.outputs.version }}
+
+      - name: Push Docker Image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/tor-gateway:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/tor-gateway:${{ steps.set_version.outputs.version }}
+
+      - name: Push Docker Image to GitHub Container Registry
+        run: |
+          docker push ghcr.io/${{ secrets.GHCR_USERNAME }}/tor-gateway:latest
+          docker push ghcr.io/${{ secrets.GHCR_USERNAME }}/tor-gateway:${{ steps.set_version.outputs.version }}
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.set_version.outputs.version }}
+          release_name: "Release ${{ steps.set_version.outputs.version }}"
+          body: "New release generated on ${{ steps.set_version.outputs.version }}."
+          draft: false
+          prerelease: false
+
+      # - name: Send Telegram Message
+      #   uses: appleboy/telegram-action@master
+      #   with:
+      #     to: ${{ secrets.TELEGRAM_CHAT_ID }}
+      #     token: ${{ secrets.TELEGRAM_TOKEN }}
+      #     message: "New Tor Gateway Release: ${{ steps.set_version.outputs.version }} has been deployed."

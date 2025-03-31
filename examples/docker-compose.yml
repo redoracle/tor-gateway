@@ -1,0 +1,117 @@
+
+services:
+  crawl4ai:
+    image: unclecode/crawl4ai:all-amd64
+    container_name: crawl4ai
+    hostname: crawl4ai
+    restart: unless-stopped
+    env_file:
+      - $HOME/DATA/crawl4ai/.env
+    # ports:
+    #   - "11235:11235"
+    volumes:
+      - "$HOME/DATA/crawl4ai/config:/app/config"
+      - "$HOME/DATA/crawl4ai/logs:/app/logs"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:11235/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: json-file
+    networks:
+      red_net:
+        ipv4_address: 172.13.0.210
+
+  wireguard:
+    image: linuxserver/wireguard:latest
+    container_name: wireguard
+    hostname: WireguardG
+    privileged: true
+    restart: unless-stopped
+    entrypoint: ["/init"]
+    ports:
+      - "51820:51820/udp"
+    volumes:
+      - "$HOME/DATA/Wireguard/config:/config"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - SERVERPORT=51820
+      - INTERNAL_SUBNET=172.3.0.0/24
+      - PEERS=10
+      - PEERDNS=1.1.1.1
+      - TZ=Europe/Rome
+      - PATH=/lsiopy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - HOME=/root
+      - TERM=xterm
+      - VIRTUAL_ENV=/lsiopy
+      - LSIO_FIRST_PARTY=true
+    networks:
+      red_net:
+        ipv4_address: 172.13.0.14
+
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    hostname: piholeG
+    restart: always
+    tty: true
+    stdin_open: true
+    dns:
+      - 1.0.0.1
+      - 1.1.1.1
+    cap_add:
+      - NET_ADMIN
+      - CAP_CHOWN
+      - CAP_NET_BIND_SERVICE
+      - CAP_NET_RAW
+      - CAP_NET_ADMIN
+    volumes:
+      - "$HOME/DATA/Pihole/etc-dnsmasq.d:/etc/dnsmasq.d"
+      - "$HOME/DATA/Pihole/etc-pihole:/etc/pihole"
+    environment:
+      TZ: "Europe/Amsterdam"
+      WEBPASSWORD: "piholePassword!"
+      phpver: "php"
+      PHP_ERROR_LOG: "/var/log/lighttpd/error-pihole.log"
+      IPv6: "True"
+      S6_KEEP_ENV: "1"
+      S6_BEHAVIOUR_IF_STAGE2_FAILS: "2"
+      S6_CMD_WAIT_FOR_SERVICES_MAXTIME: "0"
+      FTLCONF_LOCAL_IPV4: "0.0.0.0"
+      FTL_CMD: "no-daemon"
+      DNSMASQ_USER: "root"
+      PIHOLE_UID: "0"
+      PATH: "/opt/pihole:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    healthcheck:
+      test: ["CMD-SHELL", "dig +short +norecurse +retry=0 @127.0.0.1 pi.hole || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      red_net:
+        ipv4_address: 172.13.0.15
+
+  tor-gateway:
+    image: tor-gateway:latest
+    container_name: Tor-Gateway
+    hostname: tor-gateway
+    restart: unless-stopped
+    env_file:
+      - "$HOME/DATA/tor-gateway/.env"
+    # ports:
+    #   - "8118:8118"
+    #   - "8080:5000"
+    volumes:
+      - "$HOME/DATA/tor-gateway/.env:/home/dockeruser/.env"
+    networks:
+      red_net:
+        ipv4_address: 172.13.0.50
+
+networks:
+  red_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.13.0.0/24
