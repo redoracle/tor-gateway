@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Connection Error - Forwarding Failed</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #f5f5f5;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 700px;
+            margin: 10% auto;
+            padding: 30px;
+            background: #1e1e1e;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+        }
+        h1 {
+            color: #ff5e5e;
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+        }
+        p {
+            font-size: 1.1em;
+            line-height: 1.6em;
+        }
+        .details {
+            margin-top: 1em;
+            font-size: 0.9em;
+            color: #bbb;
+            font-style: italic;
+        }
+        .suggestion {
+            margin-top: 1.5em;
+            padding: 15px;
+            border: 1px dashed #444;
+            border-radius: 8px;
+            background: #2a2a2a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Oops! Forwarding Failed</h1>
+        <p>Privoxy was unable to forward your request to the destination server.</p>
+        <div class="suggestion">
+            <p><strong>Possible reasons:</strong></p>
+            <ul>
+                <li>The target server is offline or unreachable.</li>
+                <li>A proxy or network error occurred.</li>
+                <li>You're trying to access a .onion site without a proper Tor setup.</li>
+            </ul>
+        </div>
+        <div class="details">
+            Template: forwarding-failed<br>
+            Please check your network or proxy settings and try again.
+        </div>
+    </div>
+</body>
+</html>
