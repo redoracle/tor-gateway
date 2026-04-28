@@ -27,6 +27,7 @@
   .overlay {
     position: relative;
     background: rgba(30, 30, 30, 0.85);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border-radius: 12px;
     box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
@@ -178,7 +179,7 @@
     right: 0;
     bottom: 0;
     background: rgba(18, 18, 18, 0.95);
-    display: flex;
+    display: none;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -337,9 +338,42 @@
     justify-content: center;
     margin-bottom: 1rem;
   }
+
+  /* Section summary spacing (moved from inline styles) */
+  .section-title {
+    margin: 1rem 0;
+    cursor: pointer;
+  }
+
+  /* Small utility margins */
+  .mb-0-5 { margin-bottom: 0.5rem; }
+  .mt-0-5 { margin-top: 0.5rem; }
+
+  /* Inset sides helper for info boxes (replaces inline margins) */
+  .inset-sides { margin-left: 1rem; margin-right: 1rem; }
+
+  /* Thin hr with low opacity */
+  .thin-hr {
+    margin: 20px 0;
+    opacity: 0.3;
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* Hidden helper (used to hide loader initially) */
+  .hidden { display: none; }
   
   .logo-icon {
     height: 100px;
     width: 100px;
     object-fit: contain;
+    /* Subtle white glow */
+    filter: drop-shadow(0 0 2px rgba(244, 241, 241, 0.66));
+    transition: filter 180ms ease, transform 180ms ease;
+  }
+
+  .logo-icon:hover {
+    /* Slightly stronger on hover */
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.4));
+    transform: scale(1.03);
   }

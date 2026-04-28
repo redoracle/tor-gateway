@@ -9,7 +9,7 @@
 </head>
 <body>
   <video autoplay muted loop id="background-video">
-    <source src="/static/digital-network-traffic-concept.mp4" type="video/mp4" />
+    <source src="/static/digital-network-traffic-concept_2.mp4" type="video/mp4" />
     Your browser does not support the video tag.
   </video>
 
@@ -21,8 +21,8 @@
 
     <!-- Exit Info -->
     <details open>
-      <summary class="section-title" style="margin-bottom: 1rem; margin-top: 1rem;">Tor Exit Info</summary>
-      <div class="info" id="exitInfoDisplay" style="margin-left: 1rem; margin-right: 1rem;">
+      <summary class="section-title">Tor Exit Info</summary>
+      <div class="info inset-sides" id="exitInfoDisplay">
         {% if exit_info and exit_info.status == "success" %}
           <div class="info-row"><span class="label">IP:</span><span class="value">{{ exit_info.query }}</span></div>
           <div class="info-row"><span class="label">Country:</span><span class="value">{{ exit_info.country }} ({{ exit_info.countryCode }})</span></div>
@@ -37,7 +37,7 @@
 
     <!-- System Info -->
     <details>
-        <summary class="section-title" style="margin-bottom: 1rem; margin-top: 1rem;">System & Network Info</summary>
+      <summary class="section-title">System & Network Info</summary>
         <div class="info responsive-info" id="systemInfoBox">
           
           <div class="info-row responsive-row">
@@ -70,17 +70,17 @@
 
     <!-- Tor DNS & Circuits -->
     <details>
-      <summary class="section-title" style="margin-bottom: 1rem; margin-top: 1rem;">Tor DNS & Circuit Details</summary>
-      <div class="info terminal-box responsive-info" id="torInfoBox" style="margin-left: 1rem; margin-right: 1rem;">
-        <div style="margin-bottom: 0.5rem;"><strong>Bootstrap:</strong> <span id="bootstrapStatus">Loading...</span></div>
-        <div style="margin-top: 0.5rem;"><strong>DNS Servers:</strong><pre id="dnsServers" class="preformatted">Loading...</pre></div>
+      <summary class="section-title">Tor DNS & Circuit Details</summary>
+      <div class="info terminal-box responsive-info inset-sides" id="torInfoBox">
+        <div class="mb-0-5"><strong>Bootstrap:</strong> <span id="bootstrapStatus">Loading...</span></div>
+        <div class="mt-0-5"><strong>DNS Servers:</strong><pre id="dnsServers" class="preformatted">Loading...</pre></div>
         <div><strong>Tor Circuits:</strong><pre id="torCircuits" class="preformatted">Loading...</pre></div>
       </div>
     </details>
 
     <!-- Config Editor -->
     <details open>
-      <summary class="section-title" style="margin-bottom: 1rem; margin-top: 1rem;">Update Configuration</summary>
+      <summary class="section-title">Update Configuration</summary>
       <div class="form-container responsive-info">
         <form id="configForm" onsubmit="submitForm(event)">
           <div id="configFields">
@@ -101,7 +101,7 @@
             {% endfor %}
           </div>
 
-          <hr style="margin: 20px 0; opacity: 0.3;" />
+          <hr class="thin-hr" />
 
           <div class="custom-field">
             <label for="newKey">New Variable:</label>
@@ -123,7 +123,7 @@
     </details>
   </div>
 
-  <div id="loader" style="display: none;">
+  <div id="loader" class="hidden">
     <div class="spinner"></div>
     <p>Reloading configuration...</p>
   </div>
